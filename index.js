@@ -47,6 +47,7 @@ app.get('/search/:key', async (req, res)=>{
 //     res.send(result)
 //   })
 
+
 Connect().then(() => {
     app.listen(5000, ()=>{
         console.log("app is running")
