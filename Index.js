@@ -3,7 +3,7 @@ const Connect = require('./DB/config')
 const Mess = require('./DB/Models/Mess')
 const cors = require('cors')
 
-Connect()
+
 const app = express();
 app.use(express.json())
 app.use(cors())
@@ -47,6 +47,10 @@ app.get('/search/:key', async (req, res)=>{
 //     res.send(result)
 //   })
 
-app.listen(5000, ()=>{
-    console.log("app is running")
-});
+Connect().then(() => {
+    app.listen(5000, ()=>{
+        console.log("app is running")
+    });
+}).catch((err) => {
+    console.log(err);
+})
