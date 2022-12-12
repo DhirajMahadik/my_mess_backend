@@ -8,7 +8,7 @@ const MessSchema = new mongoose.Schema(
         close : String,
         photo : String,
         location : String,
-        phone : Number,
+        phone : String,
         address : String,
         banner: String
     }

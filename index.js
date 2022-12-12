@@ -1,12 +1,24 @@
 const express = require('express')
 const Connect = require('./DB/config')
+const multer = require('multer')
 const Mess = require('./DB/Models/Mess')
 const cors = require('cors')
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', true);
 
+const storage = multer.diskStorage({
+    destination: (req, file, cb)=>{
+            cb(null, 'Images/')
+    },
+    filename:(req, file, cb)=>{
+        cb(null,   "dhiraj" + file.originalname)
+    }
+})
+
+const upload = multer({storage:storage});
 const app = express();
 app.use(express.json())
+app.use('/imgs', express.static('./Images'))
 app.use(cors())
 
 app.get('/', async (req,res)=>{
@@ -42,11 +54,12 @@ app.get('/search/:key', async (req, res)=>{
     res.send(data)
 })
 
-// app.post('/add', async (req, res) => {
-//     let data = new Product(req.body)
-//     let result = await data.save();
-//     res.send(result)
-//   })
+app.post('/add-image',upload.single('image'), async (req, res) => {
+    console.log(req.file)
+    let file = req.file.path;
+    Mess.updateOne()
+    res.send()
+  })
 
 
 Connect().then(() => {
