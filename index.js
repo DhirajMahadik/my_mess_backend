@@ -49,7 +49,7 @@ app.get('/search/:key', async (req, res)=>{
 
 
 Connect().then(() => {
-    app.listen(5000, ()=>{
+    app.listen(process.env.PORT || 5000, ()=>{
         console.log("app is running")
     });
 }).catch((err) => {
