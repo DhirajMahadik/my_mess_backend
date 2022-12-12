@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json())
 app.use(cors())
 
-app.get('/messes', async (req,res)=>{
+app.get('/', async (req,res)=>{
     let data = await Mess.find();
     res.send(data)
 })
