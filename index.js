@@ -2,7 +2,8 @@ const express = require('express')
 const Connect = require('./DB/config')
 const Mess = require('./DB/Models/Mess')
 const cors = require('cors')
-
+const mongoose = require('mongoose');
+mongoose.set('strictQuery', true);
 
 const app = express();
 app.use(express.json())
