@@ -6,6 +6,7 @@ const cors = require('cors')
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', true);
 
+
 const storage = multer.diskStorage({
     destination: (req, file, cb)=>{
             cb(null, 'Images/')
@@ -14,6 +15,10 @@ const storage = multer.diskStorage({
         cb(null,   "dhiraj" + file.originalname)
     }
 })
+
+const UpdatePath = (email)=>{
+   
+}
 
 const upload = multer({storage:storage});
 const app = express();
@@ -26,12 +31,24 @@ app.get('/', async (req,res)=>{
     res.send(data)
 })
 
-app.post('/add-mess', async(req, res)=>{
-    console.log(req.body.User)
-    let data = new Mess(req.body.User);
-    let result = await data.save();
-    res.send(result)
+app.post('/add-mess',upload.single('image'), async(req, res)=>{
+    const email = req.body.email;
+    let data0= await Mess.findOne({email:email});
+    if(!data0){
+        console.log(req.body)
+        console.log(req.file)
+        let data = new Mess(req.body);
+        let result = await data.save();
+        res.send(result)
+    }
+    else{
+        res.status(400).send("Email Already exist")
+    }
+    
+    
 })
+
+
 
 app.get('/mess/:id', async (req,res)=>{
     let data = await Mess.findOne({_id:req.params.id})
@@ -54,12 +71,12 @@ app.get('/search/:key', async (req, res)=>{
     res.send(data)
 })
 
-app.post('/add-image',upload.single('image'), async (req, res) => {
-    console.log(req.file)
-    let file = req.file.path;
-    Mess.updateOne()
-    res.send()
-  })
+// app.post('/add-image',upload.single('image'), async (req, res) => {
+//     console.log(req.file)
+//     let file = req.file.path;
+//     Mess.updateOne()
+//     res.send()
+//   })
 
 
 Connect().then(() => {

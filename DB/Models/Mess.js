@@ -10,7 +10,8 @@ const MessSchema = new mongoose.Schema(
         location : String,
         phone : String,
         address : String,
-        banner: String
+        banner: String,
+        email:String
     }
 );
 
