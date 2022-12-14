@@ -33,17 +33,35 @@ app.get('/', async (req,res)=>{
 
 app.post('/add-mess',upload.single('image'), async(req, res)=>{
     const email = req.body.email;
-    let data0= await Mess.findOne({email:email});
-    if(!data0){
-        console.log(req.body)
-        console.log(req.file)
-        let data = new Mess(req.body);
-        let result = await data.save();
-        res.send(result)
-    }
-    else{
-        res.status(400).send("Email Already exist")
-    }
+    // let data0= await Mess.findOne({email:email});
+    // if(!data0){
+    //     console.log(req.body)
+    //     console.log(req.file)
+    //     let data = new Mess(req.body);
+    //     let result = await data.save();
+    //     res.send(result)
+    // }
+    // else{
+    //     res.status(400).send("Email Already exist")
+    // }
+    
+    Mess.findOne({email:email}).then((response)=>{
+        
+        if(!response){
+                console.log(req.body)
+                console.log(req.file)
+                let data = new Mess(req.body);
+                let result = data.save();
+                res.send(result)
+                Mess.updateOne({email:email},{$set:{image:req.file.path}})
+            }
+            else{
+                res.status(400).send("Email Already exist")
+            }
+       
+    }).then(()=>{
+        
+    })
     
     
 })
