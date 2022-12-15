@@ -69,6 +69,7 @@ app.post('/add-mess',upload.single('image'), async(req, res)=>{
 
 
 app.get('/mess/:id', async (req,res)=>{
+
     let data = await Mess.findOne({_id:req.params.id})
     if(data){
         res.send(data)
@@ -89,12 +90,20 @@ app.get('/search/:key', async (req, res)=>{
     res.send(data)
 })
 
-// app.post('/add-image',upload.single('image'), async (req, res) => {
-//     console.log(req.file)
-//     let file = req.file.path;
-//     Mess.updateOne()
-//     res.send()
-//   })
+app.post('/login', async (req, res) => {
+    const email = req.body.email;
+    // console.log(req.body)
+    let data = await Mess.findOne({email:email})
+    console.log(data)
+    if(data){
+       
+        res.status(200).send(data)
+        // console.log(data)
+    }
+    else{
+        res.status(400).send('bad request')
+    }
+  })
 
 
 Connect().then(() => {
