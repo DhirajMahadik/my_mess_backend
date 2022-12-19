@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 
 const MessSchema = new mongoose.Schema(
     {
@@ -11,8 +12,17 @@ const MessSchema = new mongoose.Schema(
         phone : String,
         address : String,
         image: String,
-        email:String
+        email:String,
+        password:String
     }
 );
+
+MessSchema.pre('save', async function(next) {
+    this.password = await bcrypt.hash(this.password, 10,(err,encrypted)=> {
+        console.log(encrypted);
+    });
+    console.log(`password is  ${this.password}`)
+    next()
+})
 
 module.exports = mongoose.model('Mess', MessSchema)
