@@ -1,44 +1,66 @@
+// Required modules and libraries
+
 const express = require('express')
 const Connect = require('./DB/config')
 const multer = require('multer')
+const bcrypt = require('bcrypt');
+const JWT = require('jsonwebtoken')
 const Mess = require('./DB/Models/Mess')
 const cors = require('cors')
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', true);
-
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb)=>{
-            cb(null, 'Images/')
-    },
-    filename:(req, file, cb)=>{
-        cb(null,   "dhiraj" + file.originalname)
-    }
-})
-
-const UpdatePath = (email)=>{
-   
-}
-
-const upload = multer({storage:storage});
 const app = express();
 app.use(express.json())
 app.use('/imgs', express.static('./Images'))
 app.use(cors())
 
-app.get('/', async (req,res)=>{
+// Folder creation for user images
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'Images/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, "dhiraj" + file.originalname)
+    }
+})
+const upload = multer({ storage: storage });
+
+// secret key for auth token
+const secretKey = "Dhiraj"
+
+//taking auth token from headers
+const verify_token =(req, res, next)=>{
+    const bearerHeader = req.headers['authorization'];
+    if(typeof bearerHeader === 'undefined'){
+        res.send({result :'invalid token'})
+    }else{
+        const bearer = bearerHeader.split(" ");
+        const token = bearer[1]
+        req.token = token
+        next();
+        
+    }
+}
+
+//default rout of appliction, it will serve all users details
+app.get('/', async (req, res) => {
     let data = await Mess.find();
     res.send(data)
 })
 
-app.post('/add-mess',upload.single('image'), async(req, res)=>{
+// User registration route 
+app.post('/add-mess', upload.single('image'), async (req, res) => {
     const email = req.body.email;
-    let data0= await Mess.findOne({email:email});
-    if(!data0){
-        console.log(req.body)
-        // console.log(req.file)
-        let data = new Mess({
-        messname: req.body.messname,
+    let data0 = await Mess.findOne({ email: email });
+    if (!data0) {
+        // console.log(req.body)
+        bcrypt.hash(req.body.password, 10, (err, hash) => {
+            if (err) {
+                res.send(err)
+            } else {
+                let data = new Mess({
+                    messname: req.body.messname,
                     type: req.body.type,
                     open: req.body.open,
                     close: req.body.close,
@@ -46,84 +68,91 @@ app.post('/add-mess',upload.single('image'), async(req, res)=>{
                     phone: req.body.phone,
                     address: req.body.address,
                     image: req.file.filename,
-                    email: req.body.email
-    });
-        let result = await data.save();
-        res.send(result)
+                    email: req.body.email,
+                    password: hash
+
+                });
+                let result = data.save();
+                res.send(result)
+                console.log(result)
+            }
+        })
+
     }
-    else{
+    else {
         res.status(400).send("Email Already exist")
     }
-    
-//     Mess.findOne({email:email}).then((response)=>{
-        
-//         if(!response){
-//                 // console.log(req.file)
-//                 let data = new Mess({
-                    
-//                 });
-//                 let result = data.save();
-//                 res.send(result)
-              
-//             }
-//             else{
-//                 res.status(400).send("Email Already exist")
-//             }
-       
-//     }).then(()=>{
-        
-//     })
-    
-    
 })
 
-app.delete('/delete/:id', async (req, res)=>{
-        let data = await Mess.deleteOne({_id:req.params.id})
-        res.send(data)
+// this route will delete a user form database
+app.delete('/delete/:id', async (req, res) => {
+    let data = await Mess.deleteOne({ _id: req.params.id })
+    res.send(data)
 })
 
+// this route is created for getting perticular user data
+app.get('/mess/:id', async (req, res) => {
 
-
-app.get('/mess/:id', async (req,res)=>{
-
-    let data = await Mess.findOne({_id:req.params.id})
-    if(data){
+    let data = await Mess.findOne({ _id: req.params.id })
+    if (data) {
         res.send(data)
     }
-    else{
+    else {
         res.send("No data found")
     }
 })
 
-app.get('/search/:key', async (req, res)=>{
+// this route is created for perform search operation in user data
+app.get('/search/:key', async (req, res) => {
     let data = await Mess.find({
-        "$or":[
-            {"messname":{$regex:req.params.key}},
-            {"address":{$regex:req.params.key}},
+        "$or": [
+            { "messname": { $regex: req.params.key } },
+            { "address": { $regex: req.params.key } },
         ]
     })
 
     res.send(data)
 })
 
+// User login 
 app.post('/login', async (req, res) => {
     const email = req.body.email;
-    // console.log(req.body)
-    let data = await Mess.findOne({email:email})
+
+    let data = await Mess.findOne({ email: email })
     console.log(data)
-    if(data){
-       
-        res.status(200).send(data)
-        // console.log(data)
+    if (data) {
+        
+        JWT.sign({ data }, secretKey, { expiresIn: '900s' }, (err, token) => {
+            if(err){
+                res.status(400).send(err)
+            }else{
+                res.status(200).json({ token })
+            }
+            
+            
+        })
+
     }
-    else{
+    else {
         res.status(400).send('bad request')
     }
-  })
+})
+
+//profile route 
+app.get('/profile', verify_token, (req, res)=>{
+    JWT.verify(req.token, secretKey, (err, authData)=>{
+        if(err){
+            console.log( err)
+        }else{
+            res.send(authData)
+        }
+    })
+})
 
 
+//Database connection
 Connect().then(() => {
-    app.listen(process.env.PORT || 5000, ()=>{
+    app.listen(process.env.PORT || 5000, () => {
         console.log("app is running")
     });
 }).catch((err) => {

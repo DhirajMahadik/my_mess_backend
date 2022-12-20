@@ -1,13 +1,14 @@
+//// Required modules and libraries
 const mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
 
+
+// creating schema for user details
 const MessSchema = new mongoose.Schema(
     {
         messname: String,
         type: String,
         open : String,
         close : String,
-        // photo : String,
         location : String,
         phone : String,
         address : String,
@@ -17,12 +18,12 @@ const MessSchema = new mongoose.Schema(
     }
 );
 
-MessSchema.pre('save', async function(next) {
-    this.password = await bcrypt.hash(this.password, 10,(err,encrypted)=> {
-        console.log(encrypted);
-    });
-    console.log(`password is  ${this.password}`)
-    next()
-})
+// MessSchema.pre('save', async function(next) {
+//     this.password = await bcrypt.hash(this.password, 10,(err,encrypted)=> {
+//         console.log(encrypted);
+//     });
+//     console.log(`password is  ${this.password}`)
+//     next()
+// })
 
 module.exports = mongoose.model('Mess', MessSchema)
