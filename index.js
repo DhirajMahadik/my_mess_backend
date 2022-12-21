@@ -94,8 +94,9 @@ app.delete('/delete/:id', async (req, res) => {
 app.get('/mess/:id', async (req, res) => {
 
     let data = await Mess.findOne({ _id: req.params.id })
+
     if (data) {
-        res.send(data)
+        res.send({messname: data.messname, type:data.type, open:data.open, close:data.close, location:data.location, phone:data.phone, address:data.address, image:data.image, email:data.email})
     }
     else {
         res.send("No data found")
@@ -117,12 +118,18 @@ app.get('/search/:key', async (req, res) => {
 // User login 
 app.post('/login', async (req, res) => {
     const email = req.body.email;
+    
 
-    let data = await Mess.findOne({ email: email })
-    console.log(data)
-    if (data) {
-        
-        JWT.sign({ data }, secretKey, { expiresIn: '900s' }, (err, token) => {
+    let data = await Mess.find({ email: email, })
+    // console.log(data)
+
+   let pass = await bcrypt.compare( req.body.password, data[0].password);
+//    console.log(pass)
+//    res.send(data._id)
+
+    if (pass) {
+       console.log(data[0]._id)
+        JWT.sign({ email, _id: data[0]._id }, secretKey, { expiresIn: '900s' }, (err, token) => {
             if(err){
                 res.status(400).send(err)
             }else{
@@ -141,11 +148,18 @@ app.post('/login', async (req, res) => {
 //profile route 
 app.get('/profile', verify_token, (req, res)=>{
     JWT.verify(req.token, secretKey, (err, authData)=>{
-        if(err){
-            console.log( err)
-        }else{
-            res.send(authData)
-        }
+        console.log(authData)
+        if (err) throw err;
+        Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname type close open location phone address image email').then((messData) => {
+            res.send(messData)
+        })
+        // if(err){
+        //     console.log( err)
+        // }else{
+        //     let user = authData.data
+        //     console.log(user)
+        //     res.send({messname: user.messname, type:user.type, open:user.open, close:user.close, location:user.location, phone:user.phone, address:user.address, image:user.image, email:user.email})
+        // }
     })
 })
 
