@@ -165,10 +165,10 @@ app.get('/profile', verify_token, (req, res)=>{
 
 
 //Database connection
-Connect().then(() => {
+// Connect().then(() => {
     app.listen(process.env.PORT || 5000, () => {
         console.log("app is running")
     });
-}).catch((err) => {
-    console.log(err);
-})
+// }).catch((err) => {
+//     console.log(err);
+// })
