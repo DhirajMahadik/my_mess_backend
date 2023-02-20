@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 
 
 // creating schema for user details
-const MessSchema = new mongoose.Schema(
+const UserSchema = new mongoose.Schema(
     {
         messname: String,
         messtype: String,
@@ -19,12 +19,4 @@ const MessSchema = new mongoose.Schema(
     }
 );
 
-// MessSchema.pre('save', async function(next) {
-//     this.password = await bcrypt.hash(this.password, 10,(err,encrypted)=> {
-//         console.log(encrypted);
-//     });
-//     console.log(`password is  ${this.password}`)
-//     next()
-// })
-
-module.exports = mongoose.model('Mess', MessSchema)
+module.exports = mongoose.model('User', UserSchema)

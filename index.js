@@ -54,20 +54,14 @@ app.post('/add-mess', upload.single('image'), async (req, res) => {
     const email = req.body.email;
     let data0 = await Mess.findOne({ email: email });
     if (!data0) {
-        // console.log(req.body)
+        console.log(req.body)
         bcrypt.hash(req.body.password, 10, (err, hash) => {
             if (err) {
                 res.send(err)
             } else {
                 let data = new Mess({
                     messname: req.body.messname,
-                    type: req.body.type,
-                    open: req.body.open,
-                    close: req.body.close,
-                    location: req.body.location,
                     phone: req.body.phone,
-                    address: req.body.address,
-                    image: req.file.filename,
                     email: req.body.email,
                     password: hash
 
@@ -120,16 +114,16 @@ app.post('/login', async (req, res) => {
     const email = req.body.email;
     
 
-    let data = await Mess.find({ email: email, })
+    let data = await Mess.findOne({ email: email, })
     // console.log(data)
 
-   let pass = await bcrypt.compare( req.body.password, data[0].password);
+   let pass = await bcrypt.compare( req.body.password, data.password);
 //    console.log(pass)
 //    res.send(data._id)
 
     if (pass) {
-       console.log(data[0]._id)
-        JWT.sign({ email, _id: data[0]._id }, secretKey, { expiresIn: '900s' }, (err, token) => {
+       console.log(data._id)
+        JWT.sign({ email, _id: data._id }, secretKey, { expiresIn: '900s' }, (err, token) => {
             if(err){
                 res.status(400).send(err)
             }else{
@@ -150,7 +144,7 @@ app.get('/profile', verify_token, (req, res)=>{
     JWT.verify(req.token, secretKey, (err, authData)=>{
         console.log(authData)
         if (err) throw err;
-        Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname type close open location phone address image email').then((messData) => {
+        Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname messtype mess_close mess_open location phone address image email').then((messData) => {
             res.send(messData)
         })
         // if(err){
@@ -161,6 +155,25 @@ app.get('/profile', verify_token, (req, res)=>{
         //     res.send({messname: user.messname, type:user.type, open:user.open, close:user.close, location:user.location, phone:user.phone, address:user.address, image:user.image, email:user.email})
         // }
     })
+})
+
+app.put('/update-profile', async(req,res)=>{
+    console.log(req.body)
+    let data = Mess.findOne({_id:req.body._id})
+    if(data){
+        let data1 = await Mess.updateOne(
+           {_id: req.body._id},
+            {
+              $set: req.body
+        
+            }
+          )
+          res.send(data1);
+    }else{
+        res.send({err:"something wrong"})
+    }
+
+    
 })
 
 
