@@ -143,10 +143,14 @@ app.post('/login', async (req, res) => {
 app.get('/profile', verify_token, (req, res)=>{
     JWT.verify(req.token, secretKey, (err, authData)=>{
         console.log(authData)
-        if (err) throw err;
-        Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname messtype mess_close mess_open location phone address image email').then((messData) => {
-            res.send(messData)
-        })
+        if (err){
+            res.send(err)
+        }else{
+            Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname messtype mess_close mess_open location phone address image email').then((messData) => {
+                res.send(messData)
+            })
+        }
+       
         // if(err){
         //     console.log( err)
         // }else{
@@ -174,6 +178,10 @@ app.put('/update-profile', async(req,res)=>{
     }
 
     
+})
+
+app.put('/add-image', (req,res)=>{
+    console.log(req.body)
 })
 
 
