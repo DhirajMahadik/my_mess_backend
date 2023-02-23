@@ -15,7 +15,14 @@ const MessSchema = new mongoose.Schema(
         image: String,
         email:String,
         password:String,
-        type:String
+        type:String,
+        photos:Array,
+        lunch_time:String,
+        lunch_price:String,
+        dinner_time:String,
+        dinner_price:String,
+        lunch_menu:String,
+        dinner_menu:String
     }
 );
 
