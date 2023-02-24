@@ -8,11 +8,25 @@ const JWT = require('jsonwebtoken')
 const Mess = require('./DB/Models/Mess')
 const cors = require('cors')
 const mongoose = require('mongoose');
+const cloudinary = require('cloudinary').v2;
+const fileUpload = require('express-fileupload')
 mongoose.set('strictQuery', true);
 const app = express();
 app.use(express.json())
 app.use('/imgs', express.static('./Images'))
 app.use(cors())
+
+app.use(fileUpload({
+    useTempFiles : true
+}))
+
+// Configuration 
+cloudinary.config({
+    cloud_name: "djmp17jsh",
+    api_key: "144788257939745",
+    api_secret: "pU3s1YTh-zNkit2umw9S2YABNfk"
+  });
+  
 
 // Folder creation for user images
 
@@ -90,7 +104,7 @@ app.get('/mess/:id', async (req, res) => {
     let data = await Mess.findOne({ _id: req.params.id })
 
     if (data) {
-        res.send({messname: data.messname, type:data.type, open:data.open, close:data.close, location:data.location, phone:data.phone, address:data.address, image:data.image, email:data.email})
+        res.send({messname: data.messname, type:data.type, open:data.open, close:data.close, location:data.location, phone:data.phone, address:data.address, image:data.image, email:data.email , photos:data.photos})
     }
     else {
         res.send("No data found")
@@ -146,7 +160,7 @@ app.get('/profile', verify_token, (req, res)=>{
         if (err){
             res.send(err)
         }else{
-            Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname messtype mess_close mess_open location phone address image email').then((messData) => {
+            Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname messtype mess_close mess_open location phone address image email photos').then((messData) => {
                 res.send(messData)
             })
         }
@@ -180,8 +194,41 @@ app.put('/update-profile', async(req,res)=>{
     
 })
 
-app.put('/add-image', (req,res)=>{
+app.post('/add-image',  (req,res)=>{
     console.log(req.body)
+    const file = req.files.image
+    cloudinary.uploader.upload(file.tempFilePath, async (err, result)=>{
+        console.log(result.url)
+       let data = await Mess.updateOne(
+            {_id: req.body._id},
+            {
+              $set: {image : result.url}
+        
+            }
+        )
+        res.send(data)
+    })
+   
+})
+
+app.post('/add-collection-image',  (req,res)=>{
+    console.log(req.body)
+    const file = req.files.image
+    cloudinary.uploader.upload(file.tempFilePath, async (err, result)=>{
+        console.log(result.url)
+        let messData = await Mess.findOne({_id:req.body._id})
+        let arr = messData.photos
+        arr.push(result.url)
+       let data = await Mess.updateOne(
+            {_id: req.body._id},
+            {
+              $set: {photos :arr}
+        
+            }
+        )
+        res.send(data)
+    })
+   
 })
 
 
