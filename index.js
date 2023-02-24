@@ -207,6 +207,11 @@ app.post('/add-image',  (req,res)=>{
             }
         )
         res.send(data)
+    }).then(()=>{
+        cloudinary.uploader.destroy(req.body.previous, async (err, result)=>{
+            console.log(result)
+          
+        })
     })
    
 })
