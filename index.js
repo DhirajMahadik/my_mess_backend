@@ -104,7 +104,7 @@ app.get('/mess/:id', async (req, res) => {
     let data = await Mess.findOne({ _id: req.params.id })
 
     if (data) {
-        res.send({messname: data.messname, type:data.type, open:data.open, close:data.close, location:data.location, phone:data.phone, address:data.address, image:data.image, email:data.email , photos:data.photos})
+        res.send({messname: data.messname, type:data.type, open:data.mess_open, close:data.mess_close, location:data.location, phone:data.phone, address:data.address, image:data.image, email:data.email , photos:data.photos, lunch_time:data.lunch_time, dinner_time:data.dinner_time, lunch_price:data.lunch_price, dinner_price:data.dinner_price, lunch_menu:data.lunch_menu , dinner_menu:data.dinner_menu })
     }
     else {
         res.send("No data found")
@@ -160,7 +160,7 @@ app.get('/profile', verify_token, (req, res)=>{
         if (err){
             res.send(err)
         }else{
-            Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname messtype mess_close mess_open location phone address image email photos').then((messData) => {
+            Mess.findById(mongoose.Types.ObjectId(authData._id)).select('messname messtype mess_close mess_open location phone address image email photos lunch_time lunch_price dinner_time dinner_price lunch_menu dinner_menu').then((messData) => {
                 res.send(messData)
             })
         }
@@ -208,8 +208,15 @@ app.post('/add-image',  (req,res)=>{
         )
         res.send(data)
     }).then(()=>{
-        cloudinary.uploader.destroy(req.body.previous, async (err, result)=>{
+        let previous_url = req.body.previous
+        let arr = previous_url.split("/")
+        let provisional_img_name = arr[arr.length - 1 ]
+        let img_name = provisional_img_name.split(".")
+        let actual_img_name = img_name[0]
+        console.log(actual_img_name)
+        cloudinary.uploader.destroy(actual_img_name, async (err, result)=>{
             console.log(result)
+            console.log(err)
           
         })
     })
@@ -233,6 +240,41 @@ app.post('/add-collection-image',  (req,res)=>{
         )
         res.send(data)
     })
+   
+})
+
+app.post('/remove-collection-image', async (req,res)=>{
+    console.log(req.body)
+
+    let messData = await Mess.findOne({_id:req.body._id})
+        let arr1 = messData.photos
+        let Index = arr1.findIndex((element)=> element === req.body.previous)
+            arr1.splice(Index , 1)
+       let data = await Mess.updateOne(
+            {_id: req.body._id},
+            {
+              $set: {photos :arr1}
+        
+            }
+        ).then(()=>{
+
+            let previous_url = req.body.previous
+            let arr = previous_url.split("/")
+            let provisional_img_name = arr[arr.length - 1 ]
+            let img_name = provisional_img_name.split(".")
+            let actual_img_name = img_name[0]
+            console.log(actual_img_name)
+            cloudinary.uploader.destroy(actual_img_name, async (err, result)=>{
+                console.log(result)
+                console.log(err)
+                res.send(result)
+              
+            })
+        })
+        
+
+   
+
    
 })
 

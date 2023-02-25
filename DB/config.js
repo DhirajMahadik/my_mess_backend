@@ -1,10 +1,10 @@
 //// Required modules and libraries
 const mongoose = require('mongoose');
-
+// const URL = process.env.DATABASE
 // configuration of backend with database
 const Connect = () => {
 
-    return mongoose.connect('mongodb://127.0.0.1:27017/')
+    return mongoose.connect('mongodb+srv://dhirajdemo9221:dhirajdemo%40123@cluster0.10xjk3l.mongodb.net/test')
 
 }
 

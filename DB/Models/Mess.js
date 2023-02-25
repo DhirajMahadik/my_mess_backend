@@ -7,8 +7,8 @@ const MessSchema = new mongoose.Schema(
     {
         messname: String,
         messtype: String,
-        open : String,
-        close : String,
+        mess_open : String,
+        mess_close : String,
         location : String,
         phone : String,
         address : String,
