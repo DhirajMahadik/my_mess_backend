@@ -196,8 +196,8 @@ app.put('/update-profile', async(req,res)=>{
 
 app.post('/add-image',  (req,res)=>{
     console.log(req.body)
-    const file = req.files.image
-    cloudinary.uploader.upload(file.tempFilePath, async (err, result)=>{
+    // const file = req.files.image
+    cloudinary.uploader.upload(req.files.image.tempFilePath, async (err, result)=>{
         console.log(result.url)
        let data = await Mess.updateOne(
             {_id: req.body._id},
@@ -225,8 +225,8 @@ app.post('/add-image',  (req,res)=>{
 
 app.post('/add-collection-image',  (req,res)=>{
     console.log(req.body)
-    const file = req.files.image
-    cloudinary.uploader.upload(file.tempFilePath, async (err, result)=>{
+    // const file = req.files.image
+    cloudinary.uploader.upload(req.files.image.tempFilePath, async (err, result)=>{
         console.log(result.url)
         let messData = await Mess.findOne({_id:req.body._id})
         let arr = messData.photos
