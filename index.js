@@ -9,16 +9,17 @@ const Mess = require('./DB/Models/Mess')
 const cors = require('cors')
 const mongoose = require('mongoose');
 const cloudinary = require('cloudinary').v2;
-const fileUpload = require('express-fileupload')
+// const fileUpload = require('express-fileupload')
+const path = require('path')
 mongoose.set('strictQuery', true);
 const app = express();
 app.use(express.json())
 app.use('/imgs', express.static('./Images'))
 app.use(cors())
 
-app.use(fileUpload({
-    useTempFiles : true
-}))
+// app.use(fileUpload({
+//     useTempFiles : false
+// }))
 
 // Configuration 
 cloudinary.config({
@@ -30,15 +31,28 @@ cloudinary.config({
 
 // Folder creation for user images
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'Images/')
-    },
-    filename: (req, file, cb) => {
-        cb(null, "dhiraj" + file.originalname)
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'Images/')
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, "dhiraj" + file.originalname)
+//     }
+// })
+const maxSize = 10 * 1024 * 1024
+const upload = multer({
+    storage: multer.diskStorage({}),
+    limits: { fileSize: maxSize },
+    fileFilter:  (req, file , cb)=>{
+        let ext = path.extname(file.originalname);
+        // if( ext !== ".jpg" && !== ".jpeg" && !== ".png" ){
+        //     cb( new Error("File type is not supported"), false);
+        //     return
+        // }
+        cb(null, true)
     }
-})
-const upload = multer({ storage: storage });
+
+  });
 
 // secret key for auth token
 const secretKey = "Dhiraj"
@@ -64,7 +78,7 @@ app.get('/', async (req, res) => {
 })
 
 // User registration route 
-app.post('/add-mess', upload.single('image'), async (req, res) => {
+app.post('/add-mess',  async (req, res) => {
     const email = req.body.email;
     let data0 = await Mess.findOne({ email: email });
     if (!data0) {
@@ -194,10 +208,12 @@ app.put('/update-profile', async(req,res)=>{
     
 })
 
-app.post('/add-image',  (req,res)=>{
+app.post('/add-image',upload.single('image') , (req,res)=>{
     console.log(req.body)
+    console.log(req.file.path)
+    // res.send(req.file.path)
     // const file = req.files.image
-    cloudinary.uploader.upload(req.files.image.tempFilePath, async (err, result)=>{
+    cloudinary.uploader.upload(req.file.path, async (err, result)=>{
         console.log(result.url)
        let data = await Mess.updateOne(
             {_id: req.body._id},
@@ -223,10 +239,10 @@ app.post('/add-image',  (req,res)=>{
    
 })
 
-app.post('/add-collection-image',  (req,res)=>{
+app.post('/add-collection-image', upload.single("image"),  (req,res)=>{
     console.log(req.body)
     // const file = req.files.image
-    cloudinary.uploader.upload(req.files.image.tempFilePath, async (err, result)=>{
+    cloudinary.uploader.upload(req.file.path, async (err, result)=>{
         console.log(result.url)
         let messData = await Mess.findOne({_id:req.body._id})
         let arr = messData.photos
