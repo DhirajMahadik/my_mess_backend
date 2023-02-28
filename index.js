@@ -259,14 +259,14 @@ app.post('/add-collection-image', upload.single("image"),  (req,res)=>{
    
 })
 
-app.post('/remove-collection-image', async (req,res)=>{
+app.post('/remove-collection-image', async (req , res)=>{
     console.log(req.body)
 
     let messData = await Mess.findOne({_id:req.body._id})
         let arr1 = messData.photos
         let Index = arr1.findIndex((element)=> element === req.body.previous)
             arr1.splice(Index , 1)
-       let data = await Mess.updateOne(
+        Mess.updateOne(
             {_id: req.body._id},
             {
               $set: {photos :arr1}
