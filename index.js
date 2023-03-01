@@ -1,5 +1,5 @@
 // Required modules and libraries
-
+require('dotenv').config();
 const express = require('express')
 const Connect = require('./DB/config')
 const multer = require('multer')
@@ -23,10 +23,10 @@ app.use(cors())
 
 // Configuration 
 cloudinary.config({
-    cloud_name: "djmp17jsh",
-    api_key: "144788257939745",
-    api_secret: "pU3s1YTh-zNkit2umw9S2YABNfk"
-  });
+  cloud_name: process.env.CLOUD_NAME,
+  api_key:process.env.API_KEY,
+  api_secret: process.env.API_SECRETE,
+});
   
 
 // Folder creation for user images
@@ -55,7 +55,7 @@ const upload = multer({
   });
 
 // secret key for auth token
-const secretKey = "Dhiraj"
+const secretKey = process.env.SECRETKEY 
 
 //taking auth token from headers
 const verify_token =(req, res, next)=>{
@@ -151,7 +151,7 @@ app.post('/login', async (req, res) => {
 
     if (pass) {
        console.log(data._id)
-        JWT.sign({ email, _id: data._id }, secretKey, { expiresIn: '900s' }, (err, token) => {
+        JWT.sign({ email, _id: data._id }, secretKey, { expiresIn: '2h' }, (err, token) => {
             if(err){
                 res.status(400).send(err)
             }else{
@@ -299,6 +299,7 @@ app.post('/remove-collection-image', async (req , res)=>{
 Connect().then(() => {
     app.listen(process.env.PORT || 5000, () => {
         console.log("app is running")
+       
     });
 }).catch((err) => {
     console.log(err);
