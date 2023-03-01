@@ -297,7 +297,7 @@ app.post('/remove-collection-image', async (req , res)=>{
 
 // Database connection
 Connect().then(() => {
-    app.listen(process.env.PORT || 5000, () => {
+    app.listen(5000, () => {
         console.log("app is running")
        
     });
