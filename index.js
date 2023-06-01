@@ -55,7 +55,7 @@ const upload = multer({
 });
 
 // secret key for auth token
-const secretKey = process.env.SECRETKEY 
+const secretKey = "dhiraj"
 
 //taking auth token from headers
 const verify_token = (req, res, next) => {
@@ -156,6 +156,7 @@ app.post('/login', async (req, res) => {
         JWT.sign({ email, _id: data._id }, secretKey, { expiresIn: '900s' }, (err, token) => {
             if(err){
                 res.status(400).send(err)
+                console.log(err)
             } else {
                 res.status(200).json({ token })
             }
