@@ -34,4 +34,4 @@ const MessSchema = new mongoose.Schema(
 //     next()
 // })
 
-module.exports = mongoose.model('Mess', MessSchema)
+module.exports = mongoose.model('messes', MessSchema)

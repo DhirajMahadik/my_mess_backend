@@ -145,7 +145,7 @@ app.post('/login', async (req, res) => {
 
 
     let data = await Mess.findOne({ email: email, })
-    // console.log(data)
+    console.log(data)
 
     let pass = await bcrypt.compare(req.body.password, data.password);
     //    console.log(pass)
