@@ -131,8 +131,8 @@ app.get('/mess/:id', async (req, res) => {
 app.get('/search/:key', async (req, res) => {
     let data = await Mess.find({
         "$or": [
-            { "messname": { $regex: req.params.key } },
-            { "address": { $regex: req.params.key } },
+            { "messname": { $regex: '.*' + req.params.key + '.*', $options: "i" } },
+            { "address": { $regex: '.*' + req.params.key + '.*', $options: "i" } },
         ]
     })
 
